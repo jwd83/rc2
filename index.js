@@ -97,7 +97,7 @@ window.onload = function () {
     const richText = new PIXI.Text('T h e    H u n t    F o r', style);
     const richText2 = new PIXI.Text('Roy Carnassus', style2);
     const richText3 = new PIXI.Text('P a r t :    I I', style);
-    const richText4 = new PIXI.Text('©️ 1984 Jack Games', style3);
+    const richText4 = new PIXI.Text('©️ 2005 Jack Games', style3);
 
     richText.anchor.set(0.5);
     richText2.anchor.set(0.5);
