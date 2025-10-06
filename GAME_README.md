@@ -1,0 +1,72 @@
+# Life Force Clone - Shmup Prototype
+
+A 2D shoot 'em up (shmup) game prototype inspired by the NES game Life Force, built with LÖVE2D.
+
+## Controls
+
+### Player 1 (Red Triangle)
+- **Movement**: Arrow keys (↑↓←→)
+- **Shoot**: Right Control key
+
+### Player 2 (Blue Triangle)  
+- **Movement**: WASD keys
+- **Shoot**: Spacebar
+
+## Game Features
+
+- **Two-player cooperative gameplay**
+- **Scrolling starfield background** with parallax effect
+- **Simple collision detection** between bullets/enemies and ships/enemies
+- **Score system** with individual counters for both players
+- **Lives system** with 3 shared lives
+- **Auto-restart** when all lives are lost
+- **Progressive difficulty** - enemies spawn faster over time
+- **Multiple enemy movement patterns**:
+  - Straight down movement
+  - Diagonal movement  
+  - Sinusoidal wave movement
+
+## Project Structure
+
+```
+rc2/
+├── main.lua      - Main game loop and initialization
+├── starfield.lua - Scrolling starfield background system
+├── player.lua    - Player ship management (both red and blue triangles)
+├── bullet.lua    - Projectile system for player shots
+├── enemy.lua     - Enemy spawning and movement system
+└── love.exe      - LÖVE2D game engine executable
+```
+
+## How to Run
+
+1. Make sure all game files are in the same directory as `love.exe`
+2. Open command prompt/terminal in the game directory
+3. Run: `love.exe .` (Windows) or `love .` (macOS/Linux)
+
+Alternatively, you can drag the game folder onto the `love.exe` executable.
+
+## Technical Details
+
+- **Engine**: LÖVE2D (Lua game framework)
+- **Graphics**: Simple 2D shapes (no sprites - hitbox test version)
+- **Delta time movement** for consistent speed regardless of frame rate
+- **Modular code structure** with clear separation of concerns
+- **Clean, commented Lua code** following game development best practices
+
+## Game Objects
+
+- **Players**: Colored triangles (red/blue) that can move freely and shoot
+- **Bullets**: Small white circles that travel upward  
+- **Enemies**: Colored rectangles with various movement patterns
+- **Stars**: White dots of varying sizes creating parallax scrolling effect
+
+## Scoring
+
+- **10 points** per enemy destroyed
+- **Individual scores** tracked for both players
+- **Shared lives system** - when either player is hit, the team loses a life
+- **Game over** when all 3 lives are exhausted
+- **Auto-restart** after 3 seconds with score reset
+
+Enjoy the game!
