@@ -22,13 +22,13 @@ function bullet.createBullet(x, y, player)
 end
 
 function bullet.update(dt, screenWidth, screenHeight)
-    -- Move bullets upward and remove off-screen bullets
+    -- Move bullets right and remove off-screen bullets
     for i = #bullets, 1, -1 do
         local b = bullets[i]
-        b.y = b.y - bulletSpeed * dt
+        b.x = b.x + bulletSpeed * dt
         
         -- Remove bullets that have gone off screen
-        if b.y + b.radius < 0 then
+        if b.x - b.radius > screenWidth then
             table.remove(bullets, i)
         end
     end

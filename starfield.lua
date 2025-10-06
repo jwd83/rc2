@@ -26,14 +26,14 @@ function starfield.init(width, height)
 end
 
 function starfield.update(dt)
-    -- Move all stars down the screen
+    -- Move all stars left across the screen
     for i, star in ipairs(stars) do
-        star.y = star.y + star.speed * dt
+        star.x = star.x - star.speed * dt
         
         -- Reset star position when it goes off screen
-        if star.y > screenHeight + star.size then
-            star.y = -star.size
-            star.x = love.math.random() * screenWidth
+        if star.x < -star.size then
+            star.x = screenWidth + star.size
+            star.y = love.math.random() * screenHeight
             -- Randomize properties when resetting
             star.size = love.math.random(1, 3)
             star.speed = love.math.random(20, 100)

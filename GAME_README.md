@@ -1,6 +1,7 @@
-# Life Force Clone - Shmup Prototype
+# Life Force Clone - Horizontal Shmup Prototype
 
 A 2D shoot 'em up (shmup) game prototype inspired by the NES game Life Force, built with LÖVE2D.
+Features fullscreen 16:9 widescreen horizontal gameplay!
 
 ## Controls
 
@@ -14,16 +15,18 @@ A 2D shoot 'em up (shmup) game prototype inspired by the NES game Life Force, bu
 
 ## Game Features
 
+- **Fullscreen 16:9 widescreen gameplay** - automatic fullscreen mode
+- **Horizontal scrolling action** - classic side-scrolling shmup style
 - **Two-player cooperative gameplay**
-- **Scrolling starfield background** with parallax effect
+- **Scrolling starfield background** with parallax effect moving right to left
 - **Simple collision detection** between bullets/enemies and ships/enemies
 - **Score system** with individual counters for both players
 - **Lives system** with 3 shared lives
 - **Auto-restart** when all lives are lost
 - **Progressive difficulty** - enemies spawn faster over time
 - **Multiple enemy movement patterns**:
-  - Straight down movement
-  - Diagonal movement  
+  - Straight left movement
+  - Diagonal movement with vertical components
   - Sinusoidal wave movement
 
 ## Project Structure
@@ -56,10 +59,10 @@ Alternatively, you can drag the game folder onto the `love.exe` executable.
 
 ## Game Objects
 
-- **Players**: Colored triangles (red/blue) that can move freely and shoot
-- **Bullets**: Small white circles that travel upward  
-- **Enemies**: Colored rectangles with various movement patterns
-- **Stars**: White dots of varying sizes creating parallax scrolling effect
+- **Players**: Colored triangles (red/blue) positioned on the left side, pointing right
+- **Bullets**: Small white circles that travel horizontally to the right
+- **Enemies**: Colored rectangles spawning from the right and moving left
+- **Stars**: White dots of varying sizes creating right-to-left parallax scrolling
 
 ## Scoring
 

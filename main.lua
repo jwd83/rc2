@@ -19,12 +19,13 @@ local gameState = {
 local screenWidth, screenHeight
 
 function love.load()
-    -- Get screen dimensions
+    -- Set up fullscreen 16:9 display
+    love.window.setMode(0, 0, {fullscreen = true})
     screenWidth = love.graphics.getWidth()
     screenHeight = love.graphics.getHeight()
     
     -- Set window title
-    love.window.setTitle("Life Force Clone - Shmup Prototype")
+    love.window.setTitle("Life Force Clone - Horizontal Shmup")
     
     -- Initialize game systems
     starfield.init(screenWidth, screenHeight)
@@ -100,7 +101,7 @@ function handleInput()
         if love.keyboard.isDown("rctrl") then
             if player.canShoot(1) then
                 local x, y = player.getPlayerPosition(1)
-                bullet.createBullet(x, y - 10, 1)
+                bullet.createBullet(x + 15, y, 1)  -- Shoot to the right
                 player.resetShootTimer(1)
             end
         end
@@ -124,7 +125,7 @@ function handleInput()
         if love.keyboard.isDown("space") then
             if player.canShoot(2) then
                 local x, y = player.getPlayerPosition(2)
-                bullet.createBullet(x, y - 10, 2)
+                bullet.createBullet(x + 15, y, 2)  -- Shoot to the right
                 player.resetShootTimer(2)
             end
         end

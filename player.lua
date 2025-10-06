@@ -16,8 +16,8 @@ function player.init(width, height)
     players = {
         {
             -- Player 1 (red triangle)
-            x = screenWidth * 0.25,
-            y = screenHeight - 100,
+            x = 100,
+            y = screenHeight * 0.33,
             color = {1, 0, 0}, -- Red
             destroyed = false,
             respawnTimer = 0,
@@ -25,8 +25,8 @@ function player.init(width, height)
         },
         {
             -- Player 2 (blue triangle)
-            x = screenWidth * 0.75,
-            y = screenHeight - 100,
+            x = 100,
+            y = screenHeight * 0.66,
             color = {0, 0, 1}, -- Blue
             destroyed = false,
             respawnTimer = 0,
@@ -49,11 +49,12 @@ function player.update(dt)
                 p.destroyed = false
                 -- Reset position
                 if i == 1 then
-                    p.x = screenWidth * 0.25
+                    p.x = 100
+                    p.y = screenHeight * 0.33
                 else
-                    p.x = screenWidth * 0.75
+                    p.x = 100
+                    p.y = screenHeight * 0.66
                 end
-                p.y = screenHeight - 100
             end
         end
     end
@@ -115,12 +116,12 @@ function player.draw()
             -- Set player color
             love.graphics.setColor(p.color[1], p.color[2], p.color[3], 1)
             
-            -- Draw triangle pointing up
+            -- Draw triangle pointing right
             local size = 10
             local vertices = {
-                p.x, p.y - size,      -- Top point
-                p.x - size, p.y + size,  -- Bottom left
-                p.x + size, p.y + size   -- Bottom right
+                p.x + size, p.y,          -- Right point
+                p.x - size, p.y - size,   -- Top left
+                p.x - size, p.y + size    -- Bottom left
             }
             love.graphics.polygon("fill", vertices)
         elseif p.respawnTimer > 0 then
@@ -130,9 +131,9 @@ function player.draw()
                 love.graphics.setColor(p.color[1], p.color[2], p.color[3], 0.5)
                 local size = 10
                 local vertices = {
-                    p.x, p.y - size,
-                    p.x - size, p.y + size,
-                    p.x + size, p.y + size
+                    p.x + size, p.y,
+                    p.x - size, p.y - size,
+                    p.x - size, p.y + size
                 }
                 love.graphics.polygon("line", vertices)
             end

@@ -45,30 +45,30 @@ function enemy.spawn(dt)
         local color = enemyColors[love.math.random(1, #enemyColors)]
         
         local newEnemy = {
-            x = love.math.random(20, screenWidth - 40),
-            y = -20, -- Start above screen
+            x = screenWidth + 20, -- Start from right side
+            y = love.math.random(20, screenHeight - 40),
             width = love.math.random(15, 30),
             height = love.math.random(15, 30),
-            speedX = 0,
-            speedY = love.math.random(50, 120),
+            speedX = love.math.random(50, 120),
+            speedY = 0,
             color = color,
             type = enemyType
         }
         
         -- Set movement pattern based on type
         if enemyType == 1 then
-            -- Straight down
-            newEnemy.speedX = 0
+            -- Straight left
+            newEnemy.speedY = 0
         elseif enemyType == 2 then
             -- Diagonal movement
-            newEnemy.speedX = love.math.random(-50, 50)
+            newEnemy.speedY = love.math.random(-50, 50)
         else
             -- Sinusoidal movement
-            newEnemy.speedX = 0
+            newEnemy.speedY = 0
             newEnemy.sineOffset = love.math.random() * math.pi * 2
             newEnemy.sineAmplitude = love.math.random(30, 60)
             newEnemy.sineFrequency = love.math.random(1, 3)
-            newEnemy.originalX = newEnemy.x
+            newEnemy.originalY = newEnemy.y
         end
         
         table.insert(enemies, newEnemy)
@@ -83,25 +83,25 @@ function enemy.update(dt)
         -- Update position based on enemy type
         if e.type == 3 then
             -- Sinusoidal movement
-            e.y = e.y + e.speedY * dt
-            e.x = e.originalX + math.sin(gameTime * e.sineFrequency + e.sineOffset) * e.sineAmplitude
+            e.x = e.x - e.speedX * dt
+            e.y = e.originalY + math.sin(gameTime * e.sineFrequency + e.sineOffset) * e.sineAmplitude
         else
             -- Regular movement
-            e.x = e.x + e.speedX * dt
+            e.x = e.x - e.speedX * dt
             e.y = e.y + e.speedY * dt
         end
         
-        -- Keep enemies within horizontal bounds for sideways movement
-        if e.x < 0 then
-            e.x = 0
-            e.speedX = math.abs(e.speedX) -- Bounce off left edge
-        elseif e.x + e.width > screenWidth then
-            e.x = screenWidth - e.width
-            e.speedX = -math.abs(e.speedX) -- Bounce off right edge
+        -- Keep enemies within vertical bounds for vertical movement
+        if e.y < 0 then
+            e.y = 0
+            e.speedY = math.abs(e.speedY) -- Bounce off top edge
+        elseif e.y + e.height > screenHeight then
+            e.y = screenHeight - e.height
+            e.speedY = -math.abs(e.speedY) -- Bounce off bottom edge
         end
         
-        -- Remove enemies that have gone off screen
-        if e.y > screenHeight + 50 then
+        -- Remove enemies that have gone off screen to the left
+        if e.x + e.width < -50 then
             table.remove(enemies, i)
         end
     end
