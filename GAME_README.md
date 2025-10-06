@@ -5,11 +5,24 @@ Features fullscreen 16:9 widescreen horizontal gameplay!
 
 ## Controls
 
-### Player 1 (Red Triangle)
+### Automatic Joystick Support 🎮
+The game automatically detects and assigns controllers:
+- **First joystick** plugged in becomes Player 1's controller
+- **Second joystick** plugged in becomes Player 2's controller
+- **Hot-swappable** - plug/unplug controllers anytime during gameplay
+- **Keyboard fallback** - if no controller is available, uses keyboard controls
+
+### Joystick Controls (Xbox/PlayStation style)
+- **Movement**: Left analog stick OR D-pad
+- **Shoot**: A button OR Right shoulder button OR Right trigger
+
+### Keyboard Fallback Controls
+
+#### Player 1 (Red Triangle)
 - **Movement**: Arrow keys (↑↓←→)
 - **Shoot**: Right Control key
 
-### Player 2 (Blue Triangle)  
+#### Player 2 (Blue Triangle)  
 - **Movement**: WASD keys
 - **Shoot**: Spacebar
 

@@ -16,6 +16,12 @@ local gameState = {
     restartTimer = 0
 }
 
+-- Joystick state
+local joysticks = {
+    player1 = nil,
+    player2 = nil
+}
+
 local screenWidth, screenHeight
 
 function love.load()
@@ -35,6 +41,9 @@ function love.load()
     
     -- Set default font
     love.graphics.setFont(love.graphics.newFont(16))
+    
+    -- Initialize joystick support
+    updateJoystickAssignments()
 end
 
 function love.update(dt)
@@ -88,51 +97,100 @@ function love.draw()
 end
 
 function handleInput()
-    -- Player 1 controls (arrow keys + right control)
+    -- Update joystick assignments
+    updateJoystickAssignments()
+    
+    -- Player 1 controls
     local p1 = player.getPlayer(1)
     if p1 and not p1.destroyed then
-        if love.keyboard.isDown("up") then
-            player.movePlayer(1, 0, -1)
-        end
-        if love.keyboard.isDown("down") then
-            player.movePlayer(1, 0, 1)
-        end
-        if love.keyboard.isDown("left") then
-            player.movePlayer(1, -1, 0)
-        end
-        if love.keyboard.isDown("right") then
-            player.movePlayer(1, 1, 0)
-        end
-        if love.keyboard.isDown("rctrl") then
-            if player.canShoot(1) then
-                local x, y = player.getPlayerPosition(1)
-                bullet.createBullet(x + 15, y, 1)  -- Shoot to the right
-                player.resetShootTimer(1)
+        local dx, dy = 0, 0
+        local shoot = false
+        
+        -- Check joystick input first (if available)
+        if joysticks.player1 then
+            local js = joysticks.player1
+            -- Left stick or D-pad for movement
+            dx = js:getAxis(1) or 0  -- Left stick X
+            dy = js:getAxis(2) or 0  -- Left stick Y
+            
+            -- D-pad as backup
+            if math.abs(dx) < 0.3 then
+                if js:isGamepadDown("dpleft") then dx = -1 end
+                if js:isGamepadDown("dpright") then dx = 1 end
             end
+            if math.abs(dy) < 0.3 then
+                if js:isGamepadDown("dpup") then dy = -1 end
+                if js:isGamepadDown("dpdown") then dy = 1 end
+            end
+            
+            -- Shooting (A button, right shoulder, or right trigger)
+            shoot = js:isGamepadDown("a") or js:isGamepadDown("rightshoulder") or js:getAxis(6) > 0.5
+        else
+            -- Fallback to keyboard (arrow keys + right control)
+            if love.keyboard.isDown("up") then dy = -1 end
+            if love.keyboard.isDown("down") then dy = 1 end
+            if love.keyboard.isDown("left") then dx = -1 end
+            if love.keyboard.isDown("right") then dx = 1 end
+            shoot = love.keyboard.isDown("rctrl")
+        end
+        
+        -- Apply movement
+        if math.abs(dx) > 0.3 or math.abs(dy) > 0.3 or dx ~= 0 or dy ~= 0 then
+            player.movePlayer(1, dx, dy)
+        end
+        
+        -- Handle shooting
+        if shoot and player.canShoot(1) then
+            local x, y = player.getPlayerPosition(1)
+            bullet.createBullet(x + 15, y, 1)
+            player.resetShootTimer(1)
         end
     end
     
-    -- Player 2 controls (WASD + spacebar)
+    -- Player 2 controls
     local p2 = player.getPlayer(2)
     if p2 and not p2.destroyed then
-        if love.keyboard.isDown("w") then
-            player.movePlayer(2, 0, -1)
-        end
-        if love.keyboard.isDown("s") then
-            player.movePlayer(2, 0, 1)
-        end
-        if love.keyboard.isDown("a") then
-            player.movePlayer(2, -1, 0)
-        end
-        if love.keyboard.isDown("d") then
-            player.movePlayer(2, 1, 0)
-        end
-        if love.keyboard.isDown("space") then
-            if player.canShoot(2) then
-                local x, y = player.getPlayerPosition(2)
-                bullet.createBullet(x + 15, y, 2)  -- Shoot to the right
-                player.resetShootTimer(2)
+        local dx, dy = 0, 0
+        local shoot = false
+        
+        -- Check joystick input first (if available)
+        if joysticks.player2 then
+            local js = joysticks.player2
+            -- Left stick or D-pad for movement
+            dx = js:getAxis(1) or 0
+            dy = js:getAxis(2) or 0
+            
+            -- D-pad as backup
+            if math.abs(dx) < 0.3 then
+                if js:isGamepadDown("dpleft") then dx = -1 end
+                if js:isGamepadDown("dpright") then dx = 1 end
             end
+            if math.abs(dy) < 0.3 then
+                if js:isGamepadDown("dpup") then dy = -1 end
+                if js:isGamepadDown("dpdown") then dy = 1 end
+            end
+            
+            -- Shooting (A button, right shoulder, or right trigger)
+            shoot = js:isGamepadDown("a") or js:isGamepadDown("rightshoulder") or js:getAxis(6) > 0.5
+        else
+            -- Fallback to keyboard (WASD + spacebar)
+            if love.keyboard.isDown("w") then dy = -1 end
+            if love.keyboard.isDown("s") then dy = 1 end
+            if love.keyboard.isDown("a") then dx = -1 end
+            if love.keyboard.isDown("d") then dx = 1 end
+            shoot = love.keyboard.isDown("space")
+        end
+        
+        -- Apply movement
+        if math.abs(dx) > 0.3 or math.abs(dy) > 0.3 or dx ~= 0 or dy ~= 0 then
+            player.movePlayer(2, dx, dy)
+        end
+        
+        -- Handle shooting
+        if shoot and player.canShoot(2) then
+            local x, y = player.getPlayerPosition(2)
+            bullet.createBullet(x + 15, y, 2)
+            player.resetShootTimer(2)
         end
     end
 end
@@ -212,8 +270,25 @@ function drawUI()
     
     -- Draw controls (small text)
     love.graphics.setFont(love.graphics.newFont(12))
-    love.graphics.print("P1: Arrows + RCtrl", screenWidth - 200, screenHeight - 60)
-    love.graphics.print("P2: WASD + Space", screenWidth - 200, screenHeight - 40)
+    
+    -- Player 1 controls
+    if joysticks.player1 then
+        local jsName = joysticks.player1:getName():sub(1, 15) -- Truncate long names
+        love.graphics.print("P1: " .. jsName, screenWidth - 250, screenHeight - 80)
+        love.graphics.print("    Stick/D-pad + A/RT", screenWidth - 250, screenHeight - 65)
+    else
+        love.graphics.print("P1: Arrows + RCtrl", screenWidth - 200, screenHeight - 80)
+    end
+    
+    -- Player 2 controls
+    if joysticks.player2 then
+        local jsName = joysticks.player2:getName():sub(1, 15)
+        love.graphics.print("P2: " .. jsName, screenWidth - 250, screenHeight - 50)
+        love.graphics.print("    Stick/D-pad + A/RT", screenWidth - 250, screenHeight - 35)
+    else
+        love.graphics.print("P2: WASD + Space", screenWidth - 200, screenHeight - 60)
+    end
+    
     love.graphics.print("ESC: Quit Game", screenWidth - 200, screenHeight - 20)
     love.graphics.setFont(love.graphics.newFont(16))
 end
@@ -238,6 +313,40 @@ function drawGameOver()
     local restartText = "Restarting in " .. math.ceil(3 - gameState.restartTimer) .. "..."
     local restartWidth = love.graphics.getFont():getWidth(restartText)
     love.graphics.print(restartText, screenWidth/2 - restartWidth/2, screenHeight/2 + 30)
+end
+
+function updateJoystickAssignments()
+    -- Get all available joysticks
+    local availableJoysticks = love.joystick.getJoysticks()
+    
+    -- Clear current assignments if joysticks are no longer connected
+    if joysticks.player1 and not joysticks.player1:isConnected() then
+        joysticks.player1 = nil
+    end
+    if joysticks.player2 and not joysticks.player2:isConnected() then
+        joysticks.player2 = nil
+    end
+    
+    -- Assign joysticks in order of connection
+    for i, joystick in ipairs(availableJoysticks) do
+        if joystick:isGamepad() then  -- Only use gamepads
+            if not joysticks.player1 then
+                joysticks.player1 = joystick
+            elseif not joysticks.player2 and joystick ~= joysticks.player1 then
+                joysticks.player2 = joystick
+                break
+            end
+        end
+    end
+end
+
+-- Love2D joystick callbacks
+function love.joystickadded(joystick)
+    updateJoystickAssignments()
+end
+
+function love.joystickremoved(joystick)
+    updateJoystickAssignments()
 end
 
 function restartGame()
