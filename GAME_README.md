@@ -44,6 +44,11 @@ The game automatically detects and assigns controllers:
   - Straight left movement
   - Diagonal movement with vertical components
   - Sinusoidal wave movement
+- **Power-up system** with collectible enhancements:
+  - **Rate Up** (Green "R") - Increases bullet firing speed for 10 seconds
+  - **Double Shot** (Magenta "D") - Fires two bullets simultaneously for 8 seconds
+- **Particle explosion effects** - Colorful expanding circles when enemies are destroyed
+- **Procedural background music** - Ambient space-themed audio loop
 
 ## Project Structure
 
@@ -79,8 +84,12 @@ Alternatively, you can drag the game folder onto the `love.exe` executable.
 - **Bullets**: Small white circles that travel horizontally to the right
 - **Enemies**: Colored rectangles spawning from the right and moving left
 - **Stars**: White dots of varying sizes creating right-to-left parallax scrolling
+- **Power-ups**: Flashing colored rectangles with symbols:
+  - **Green "R"** - Rate Up power-up (faster shooting)
+  - **Magenta "D"** - Double Shot power-up (shoot two bullets)
+- **Particles**: Explosion effects with expanding, fading colored circles
 
-## Scoring
+## Scoring & Power-ups
 
 - **10 points** per enemy destroyed
 - **Individual scores** tracked for both players
@@ -88,4 +97,19 @@ Alternatively, you can drag the game folder onto the `love.exe` executable.
 - **Game over** when all 3 lives are exhausted
 - **Auto-restart** after 3 seconds with score reset
 
-Enjoy the game!
+### Power-up System 🚀
+- **Power-ups spawn** approximately every 12 seconds
+- **Collect by flying into them** - any player can collect any power-up
+- **Active power-ups** are displayed in the top-right corner with countdown timers
+- **Rate Up** (Green "R") - Doubles bullet firing rate for 10 seconds
+- **Double Shot** (Magenta "D") - Fires two bullets simultaneously for 8 seconds
+- **Power-ups stack** - collecting the same type extends the duration
+
+## Audio & Visual Effects 🎵
+
+- **Procedural background music** - Subtle ambient space soundtrack
+- **Particle explosions** - Enemies explode into colorful expanding circles
+- **Dynamic UI** - Shows controller names, power-up timers, and game status
+- **Smooth animations** - All movement uses delta time for consistent framerates
+
+Enjoy the enhanced arcade experience! 🎮✨

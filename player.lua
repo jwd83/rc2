@@ -84,10 +84,10 @@ function player.canShoot(playerNum)
     return p.shootTimer <= 0
 end
 
-function player.resetShootTimer(playerNum)
+function player.resetShootTimer(playerNum, customCooldown)
     local p = players[playerNum]
     if p then
-        p.shootTimer = shootCooldown
+        p.shootTimer = customCooldown or shootCooldown
     end
 end
 

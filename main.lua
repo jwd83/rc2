@@ -6,6 +6,9 @@ local starfield = require('starfield')
 local player = require('player')
 local bullet = require('bullet')
 local enemy = require('enemy')
+local particles = require('particles')
+local powerups = require('powerups')
+local music = require('music')
 
 -- Game state
 local gameState = {
@@ -14,6 +17,12 @@ local gameState = {
     lives = 3,
     gameOver = false,
     restartTimer = 0
+}
+
+-- Power-up state for both players
+local playerPowerups = {
+    [1] = { rateUp = 0, doubleShot = 0 }, -- Player 1
+    [2] = { rateUp = 0, doubleShot = 0 }  -- Player 2
 }
 
 -- Joystick state
@@ -38,12 +47,18 @@ function love.load()
     player.init(screenWidth, screenHeight)
     bullet.init()
     enemy.init(screenWidth, screenHeight)
+    particles.init()
+    powerups.init(screenWidth, screenHeight)
+    music.init()
     
     -- Set default font
     love.graphics.setFont(love.graphics.newFont(16))
     
     -- Initialize joystick support
     updateJoystickAssignments()
+    
+    -- Start background music
+    music.play()
 end
 
 function love.update(dt)
@@ -62,11 +77,16 @@ function love.update(dt)
         return
     end
     
+    -- Update power-up timers
+    updatePowerups(dt)
+    
     -- Update all game systems
     starfield.update(dt)
     player.update(dt)
     bullet.update(dt, screenWidth, screenHeight)
     enemy.update(dt)
+    particles.update(dt)
+    powerups.update(dt)
     
     -- Handle input
     handleInput()
@@ -74,8 +94,12 @@ function love.update(dt)
     -- Check collisions
     checkCollisions()
     
-    -- Spawn enemies
+    -- Spawn enemies and power-ups
     enemy.spawn(dt)
+    powerups.spawn(dt)
+    
+    -- Check power-up collisions
+    powerups.checkCollisions({player.getPlayer(1), player.getPlayer(2)})
 end
 
 function love.draw()
@@ -87,6 +111,8 @@ function love.draw()
     player.draw()
     bullet.draw()
     enemy.draw()
+    powerups.draw()
+    particles.draw()
     
     -- Draw UI
     drawUI()
@@ -142,8 +168,18 @@ function handleInput()
         -- Handle shooting
         if shoot and player.canShoot(1) then
             local x, y = player.getPlayerPosition(1)
-            bullet.createBullet(x + 15, y, 1)
-            player.resetShootTimer(1)
+            
+            -- Check for double shot power-up
+            if playerPowerups[1].doubleShot > 0 then
+                bullet.createBullet(x + 15, y - 5, 1)
+                bullet.createBullet(x + 15, y + 5, 1)
+            else
+                bullet.createBullet(x + 15, y, 1)
+            end
+            
+            -- Apply rate up power-up (faster shooting)
+            local shootCooldown = playerPowerups[1].rateUp > 0 and 0.1 or 0.2
+            player.resetShootTimer(1, shootCooldown)
         end
     end
     
@@ -189,8 +225,18 @@ function handleInput()
         -- Handle shooting
         if shoot and player.canShoot(2) then
             local x, y = player.getPlayerPosition(2)
-            bullet.createBullet(x + 15, y, 2)
-            player.resetShootTimer(2)
+            
+            -- Check for double shot power-up
+            if playerPowerups[2].doubleShot > 0 then
+                bullet.createBullet(x + 15, y - 5, 2)
+                bullet.createBullet(x + 15, y + 5, 2)
+            else
+                bullet.createBullet(x + 15, y, 2)
+            end
+            
+            -- Apply rate up power-up (faster shooting)
+            local shootCooldown = playerPowerups[2].rateUp > 0 and 0.1 or 0.2
+            player.resetShootTimer(2, shootCooldown)
         end
     end
 end
@@ -213,6 +259,9 @@ function checkCollisions()
                 else
                     gameState.score2 = gameState.score2 + 10
                 end
+                
+                -- Create explosion effect
+                particles.createExplosion(e.x + e.width/2, e.y + e.height/2, e.color)
                 
                 -- Remove bullet and enemy
                 table.remove(bullets, i)
@@ -267,6 +316,20 @@ function drawUI()
     
     -- Draw lives
     love.graphics.print("Lives: " .. gameState.lives, screenWidth - 100, 10)
+    
+    -- Draw power-up status
+    local yOffset = 50
+    for playerNum = 1, 2 do
+        local p = playerPowerups[playerNum]
+        if p.rateUp > 0 then
+            love.graphics.print("P" .. playerNum .. " Rate Up: " .. math.ceil(p.rateUp), screenWidth - 150, yOffset)
+            yOffset = yOffset + 15
+        end
+        if p.doubleShot > 0 then
+            love.graphics.print("P" .. playerNum .. " Double: " .. math.ceil(p.doubleShot), screenWidth - 150, yOffset)
+            yOffset = yOffset + 15
+        end
+    end
     
     -- Draw controls (small text)
     love.graphics.setFont(love.graphics.newFont(12))
@@ -349,6 +412,32 @@ function love.joystickremoved(joystick)
     updateJoystickAssignments()
 end
 
+function updatePowerups(dt)
+    -- Update power-up timers for both players
+    for playerNum = 1, 2 do
+        local p = playerPowerups[playerNum]
+        if p.rateUp > 0 then
+            p.rateUp = p.rateUp - dt
+        end
+        if p.doubleShot > 0 then
+            p.doubleShot = p.doubleShot - dt
+        end
+    end
+end
+
+function applyPowerup(playerNum, powerupType)
+    local p = playerPowerups[playerNum]
+    
+    if powerupType.name == "Rate Up" then
+        p.rateUp = powerupType.duration
+    elseif powerupType.name == "Double Shot" then
+        p.doubleShot = powerupType.duration
+    end
+end
+
+-- Expose globally for powerups module
+_G.applyPowerup = applyPowerup
+
 function restartGame()
     -- Reset game state
     gameState.score1 = 0
@@ -357,8 +446,14 @@ function restartGame()
     gameState.gameOver = false
     gameState.restartTimer = 0
     
+    -- Reset power-ups
+    playerPowerups[1] = { rateUp = 0, doubleShot = 0 }
+    playerPowerups[2] = { rateUp = 0, doubleShot = 0 }
+    
     -- Reinitialize game systems
     player.init(screenWidth, screenHeight)
     bullet.init()
     enemy.init(screenWidth, screenHeight)
+    particles.init()
+    powerups.init(screenWidth, screenHeight)
 end
