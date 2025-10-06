@@ -13,6 +13,9 @@ Features fullscreen 16:9 widescreen horizontal gameplay!
 - **Movement**: WASD keys
 - **Shoot**: Spacebar
 
+### Game Controls
+- **Quit Game**: Escape key
+
 ## Game Features
 
 - **Fullscreen 16:9 widescreen gameplay** - automatic fullscreen mode

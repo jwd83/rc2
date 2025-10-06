@@ -38,6 +38,11 @@ function love.load()
 end
 
 function love.update(dt)
+    -- Check for escape key to quit
+    if love.keyboard.isDown("escape") then
+        love.event.quit()
+    end
+    
     if gameState.gameOver then
         -- Handle game over state
         gameState.restartTimer = gameState.restartTimer + dt
@@ -207,8 +212,9 @@ function drawUI()
     
     -- Draw controls (small text)
     love.graphics.setFont(love.graphics.newFont(12))
-    love.graphics.print("P1: Arrows + RCtrl", screenWidth - 200, screenHeight - 40)
-    love.graphics.print("P2: WASD + Space", screenWidth - 200, screenHeight - 20)
+    love.graphics.print("P1: Arrows + RCtrl", screenWidth - 200, screenHeight - 60)
+    love.graphics.print("P2: WASD + Space", screenWidth - 200, screenHeight - 40)
+    love.graphics.print("ESC: Quit Game", screenWidth - 200, screenHeight - 20)
     love.graphics.setFont(love.graphics.newFont(16))
 end
 
